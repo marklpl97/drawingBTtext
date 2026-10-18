@@ -2,57 +2,24 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>ЧЕРТЕЖ ОКОН</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <title>KALKULATOROKON</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js  "></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js  "></script>
     <style>
         body { font-family: Arial; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .window-input { margin: 15px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background: #fafafa; }
+        .window-input { margin: 15px 0; padding: 15px; border: 1px solid #ccc; }
         canvas { border: 1px solid #666; margin-top: 20px; background: white; }
-        button { padding: 8px 15px; margin: 5px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 4px; }
-        button:hover { background: #45a049; }
-        input, select { margin: 5px; padding: 5px; border: 1px solid #ccc; border-radius: 3px; }
+        button { padding: 8px 15px; margin: 5px; cursor: pointer; background: #4CAF50; color: white; border: none; }
+        input, select, textarea { margin: 5px; padding: 5px; }
         label { font-weight: bold; }
-        .controls { margin: 15px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; }
+        .controls { margin: 15px 0; padding: 15px; background: #f5f5f5; border-radius: 5px; display: flex; flex-direction: column; gap: 10px; }
         .canvas-container { margin-top: 20px; }
-        .custom-text-input { width: 80%; margin-top: 8px; }
-        
-        /* Стили для блока общего описания */
-        .description-panel {
-            border: 2px solid #4CAF50;
-            background: #fff;
-            margin-top: 15px;
-        }
-        .description-panel h3 {
-            margin-top: 0;
-            color: #4CAF50;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-        .desc-layout {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-        }
-        .desc-textarea {
-            flex: 1;
-            width: 100%;
-            height: 180px;
-            font-family: Arial;
-            font-size: 14px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            resize: vertical;
-            box-sizing: border-box;
-        }
-        .desc-controls {
-            width: 220px;
-        }
+        .text-controls { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; }
+        textarea { width: 400px; height: 60px; resize: vertical; }
     </style>
 </head>
 <body>
-    <h1>ЧЕРТЕЖ ОКОН</h1>
+    <h1>KALKULATOROKON</h1>
     <label>Количество окон (1-10): <input type="number" id="windowCount" min="1" max="10" value="1" onchange="renderInputs()"></label>
     
     <div class="controls">
@@ -60,29 +27,20 @@
             <input type="range" id="scaleSlider" min="0.1" max="2.0" step="0.1" value="0.7" oninput="updateScaleValue()">
             <span id="scaleValue">0.7</span>
         </label>
-    </div>
-
-    <!-- НОВЫЙ БЛОК: Общее описание -->
-    <div class="controls description-panel">
-        <h3>Описание</h3>
-        <div class="desc-layout">
-            <div>
-                <textarea id="globalDescription" class="desc-textarea" rows="10" placeholder="Введите общее описание здесь... (нажмите Enter для переноса строки, до 10 строк)"></textarea>
-            </div>
-            <div class="desc-controls">
-                <label>Размер шрифта на чертеже:</label><br>
-                <select id="descFontSize" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px;">
-                    <option value="12">12 px (мелкий)</option>
-                    <option value="14" selected>14 px (стандартный)</option>
-                    <option value="16">16 px (средний)</option>
-                    <option value="18">18 px (крупный)</option>
-                    <option value="20">20 px (очень крупный)</option>
-                    <option value="24">24 px (максимальный)</option>
+        <div class="text-controls">
+            <label>Общий текст на чертеже:
+                <textarea id="drawingText" placeholder="Введите текст для нижнего правого угла..."></textarea>
+            </label>
+            <label>Размер шрифта:
+                <select id="textFontSize">
+                    <option value="10">10px</option>
+                    <option value="12" selected>12px</option>
+                    <option value="14">14px</option>
+                    <option value="16">16px</option>
+                    <option value="18">18px</option>
+                    <option value="20">20px</option>
                 </select>
-                <p style="font-size: 12px; color: #666; margin-top: 15px; line-height: 1.4;">
-                    
-                </p>
-            </div>
+            </label>
         </div>
     </div>
     
@@ -92,7 +50,7 @@
         <button onclick="drawWindows()">Обновить чертеж</button>
         <button onclick="downloadDrawing()">Скачать чертеж (.png)</button>
     </div>
-    <div id="canvasContainer" class="canvas-container"></div>
+    <div id="canvasContainer"></div>
 
     <script>
         let windowData = [];
@@ -139,8 +97,7 @@
                     Низ (см): <input type="number" id="bottom${i}" required><br>
                     Лев (см): <input type="number" id="left${i}" required><br>
                     Пр (см): <input type="number" id="right${i}" required><br>
-                    <label>Текст на чертеже:</label><br>
-                    <input type="text" id="customText${i}" class="custom-text-input" placeholder="Введите текст (напр. 'Усилить угол')"><br>
+                    <label>Текст под фигурой: <input type="text" id="winText${i}" placeholder="Текст под окном" style="width: 100%; max-width: 300px;"></label>
                 `;
                 container.appendChild(div);
                 windowData.push({
@@ -153,7 +110,7 @@
                     zipper: '0',
                     pocket: 'нет',
                     dimType: 'inner',
-                    customText: ''
+                    text: ''
                 });
             }
         }
@@ -169,14 +126,14 @@
                 win.bottom = parseFloat(document.getElementById(`bottom${idx}`).value) || 0;
                 win.left = parseFloat(document.getElementById(`left${idx}`).value) || 0;
                 win.right = parseFloat(document.getElementById(`right${idx}`).value) || 0;
-                win.customText = document.getElementById(`customText${idx}`).value || '';
+                win.text = document.getElementById(`winText${idx}`).value || '';
             });
         }
 
         function downloadExcel() {
             collectData();
             const wsData = [
-                ['Окно', 'Верх (см)', 'Низ (см)', 'Лев (см)', 'Пр (см)', 'Крепеж', 'Молния', 'Карман', 'Max b (см)', 'Max h (см)', 'S (м²)', 'S с окант. (м²)', 'Текст на чертеже']
+                ['Окно', 'Верх (см)', 'Низ (см)', 'Лев (см)', 'Пр (см)', 'Крепеж', 'Молния', 'Карман', 'Max b (см)', 'Max h (см)', 'S (м²)', 'S с окант. (м²)', 'Текст']
             ];
 
             windowData.forEach(win => {
@@ -198,7 +155,7 @@
                     maxH,
                     area.toFixed(4),
                     areaWithEdge.toFixed(4),
-                    win.customText
+                    win.text
                 ]);
             });
 
@@ -221,6 +178,7 @@
             }
 
             const len = innerPoints.length;
+            
             let maxY = -Infinity;
             for (let p of innerPoints) {
                 if (p.y > maxY) maxY = p.y;
@@ -240,14 +198,30 @@
                 const currNormal = normals[i];
                 const point = innerPoints[i];
 
-                const A1 = { x: point.x + prevNormal.x, y: point.y + prevNormal.y };
-                const A2 = { x: point.x + prevNormal.x + (innerPoints[(i - 1 + len) % len].x - point.x), y: point.y + prevNormal.y + (innerPoints[(i - 1 + len) % len].y - point.y) };
-                const B1 = { x: point.x + currNormal.x, y: point.y + currNormal.y };
-                const B2 = { x: point.x + currNormal.x + (innerPoints[(i + 1) % len].x - point.x), y: point.y + currNormal.y + (innerPoints[(i + 1) % len].y - point.y) };
+                const A1 = {
+                    x: point.x + prevNormal.x,
+                    y: point.y + prevNormal.y
+                };
+                const A2 = {
+                    x: point.x + prevNormal.x + (innerPoints[(i - 1 + len) % len].x - point.x),
+                    y: point.y + prevNormal.y + (innerPoints[(i - 1 + len) % len].y - point.y)
+                };
+
+                const B1 = {
+                    x: point.x + currNormal.x,
+                    y: point.y + currNormal.y
+                };
+                const B2 = {
+                    x: point.x + currNormal.x + (innerPoints[(i + 1) % len].x - point.x),
+                    y: point.y + currNormal.y + (innerPoints[(i + 1) % len].y - point.y)
+                };
 
                 const denominator = (A1.x - A2.x) * (B1.y - B2.y) - (A1.y - A2.y) * (B1.x - B2.x);
                 if (Math.abs(denominator) < 0.0001) {
-                    outerPoints.push({ x: point.x + currNormal.x, y: point.y + currNormal.y });
+                    outerPoints.push({
+                        x: point.x + currNormal.x,
+                        y: point.y + currNormal.y
+                    });
                 } else {
                     const t = ((A1.x - B1.x) * (B1.y - B2.y) - (A1.y - B1.y) * (B1.x - B2.x)) / denominator;
                     outerPoints.push({
@@ -294,17 +268,17 @@
             const canvasHeight = 800;
             const standardOffset = 10;
             const pocketExtraOffset = 18;
-            const padding = 60; 
+            const padding = 100; 
             const sheetPadding = 50;
             const zipperInnerOffset = 4;
             
             const scale = currentScale;
             let currentSheet = 1;
             let figuresToDraw = [...windowData];
+            let sheets = [];
             
-            // Получаем данные общего описания
-            const descText = document.getElementById('globalDescription').value;
-            const descFontSize = document.getElementById('descFontSize').value;
+            const footerText = document.getElementById('drawingText').value;
+            const footerFontSize = parseInt(document.getElementById('textFontSize').value) || 12;
             
             while (figuresToDraw.length > 0) {
                 const canvas = document.createElement('canvas');
@@ -320,58 +294,20 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
                 ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.fillStyle = '#000';
+                
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'bottom';
-                ctx.fillStyle = '#000';
                 ctx.fillText(`чертеж ${currentSheet}`, 10, canvas.height - 10);
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 
-                // ==========================================
-                // ОТРИСОВКА ОБЩЕГО ОПИСания вверху по центру
-                // ==========================================
-                let descBoxHeight = 0;
-                if (descText && descText.trim() !== '') {
-                    ctx.save();
-                    ctx.font = `bold ${descFontSize}px Arial`;
-                    ctx.fillStyle = '#000000';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    
-                    const lines = descText.split('\n');
-                    const lineHeight = parseInt(descFontSize) * 1.3;
-                    const centerX = canvas.width / 2;
-                    const startY = 10;
-                    
-                    let maxWidth = 0;
-                    lines.forEach(line => {
-                        const metrics = ctx.measureText(line);
-                        if (metrics.width > maxWidth) maxWidth = metrics.width;
-                    });
-                    
-                    const boxWidth = Math.min(maxWidth + 40, canvas.width - 100);
-                    descBoxHeight = lines.length * lineHeight + 15;
-                    
-                    // Фон и рамка "окна" описания
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(centerX - boxWidth / 2, startY, boxWidth, descBoxHeight);
-                    ctx.strokeStyle = '#4CAF50';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(centerX - boxWidth / 2, startY, boxWidth, descBoxHeight);
-                    
-                    // Текст описания
-                    ctx.fillStyle = '#000000';
-                    lines.forEach((line, i) => {
-                        ctx.fillText(line, centerX, startY + 10 + i * lineHeight);
-                    });
-                    ctx.restore();
-                }
-
-                // Динамический расчет начального Y, чтобы окна не наезжали на описание
-                const startYOffset = Math.max(sheetPadding + standardOffset, descBoxHeight + 60);
-                
                 let x = sheetPadding + standardOffset;
-                let y = startYOffset;
+                let y = sheetPadding + standardOffset;
                 let rowHeight = 0;
                 let figuresDrawn = [];
                 
@@ -389,7 +325,7 @@
                         rowHeight = 0;
                     }
                     
-                    if (y + windowHeight + standardOffset * 2 + padding + 40 > canvas.height - sheetPadding) {
+                    if (y + windowHeight + standardOffset * 2 + padding > canvas.height - sheetPadding) {
                         break;
                     }
                     
@@ -415,7 +351,7 @@
                     const outerPoints = calculateOuterContour(uniqueInnerPoints, enlargedOffset, enlargedOffsetBottom);
                     
                     ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
                     outerPoints.forEach((point, j) => {
                         if (j === 0) ctx.moveTo(point.x, point.y);
@@ -424,6 +360,8 @@
                     ctx.closePath();
                     ctx.stroke();
                     
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
                     ctx.beginPath();
                     innerPoints.forEach((point, j) => {
                         if (j === 0) ctx.moveTo(point.x, point.y);
@@ -434,42 +372,51 @@
                     
                     const centerX = x + bottomWidth / 2;
                     const centerY = y + windowHeight / 2;
+                    ctx.font = '12px Arial';
                     ctx.fillText(`${win.id} (${win.fix})`, centerX, centerY);
                     
-                    const dimPoints = (win.dimType === 'outer') ? outerPoints : innerPoints;
+                    // --- Размерные цифры ---
+                    ctx.font = 'bold 14px Arial'; 
                     
-                    ctx.fillText(`b=${win.top}`, (dimPoints[0].x + dimPoints[1].x) / 2, (dimPoints[0].y + dimPoints[1].y) / 2 + 10);
-                    ctx.fillText(`b=${win.bottom}`, (dimPoints[2].x + dimPoints[3].x) / 2, dimPoints[2].y - 10);
+                    const isOuter = (win.dimType === 'outer');
+                    // Вычисляем "внутренние" точки с отступом от контура для подписей
+                    const dimPoints = isOuter ? outerPoints : [
+                        { x: innerPoints[0].x + 10, y: innerPoints[0].y + 10 },
+                        { x: innerPoints[1].x - 10, y: innerPoints[1].y + 10 },
+                        { x: innerPoints[2].x - 10, y: innerPoints[2].y - 10 },
+                        { x: innerPoints[3].x + 10, y: innerPoints[3].y - 10 }
+                    ];
+
+                    // Отступы от контура
+                    const outShift = isOuter ? 12 : 0; 
                     
+                    // ИСПРАВЛЕНИЕ: Для внутренних размеров сдвигаем нижний размер ВВЕРХ (внутрь фигуры), 
+                    // поэтому значение отрицательное (-15). Для внешних - положительное (12), чтобы сдвинуть вниз (наружу).
+                    const bottomShift = isOuter ? 12 : -15;
+
+                    ctx.fillText(`b=${win.top}`,
+                        (dimPoints[0].x + dimPoints[1].x) / 2,
+                        (dimPoints[0].y + dimPoints[1].y) / 2 - outShift);
+
+                    ctx.fillText(`b=${win.bottom}`,
+                        (dimPoints[2].x + dimPoints[3].x) / 2,
+                        dimPoints[2].y + bottomShift);
+
                     ctx.save();
-                    ctx.translate(dimPoints[3].x + 10, (dimPoints[0].y + dimPoints[3].y) / 2);
+                    ctx.translate(dimPoints[3].x - outShift, (dimPoints[0].y + dimPoints[3].y) / 2);
                     ctx.rotate(-Math.PI / 2);
                     ctx.fillText(`h=${win.left}`, 0, 0);
                     ctx.restore();
-                    
+
                     ctx.save();
-                    ctx.translate(dimPoints[2].x - 10, (dimPoints[1].y + dimPoints[2].y) / 2);
+                    ctx.translate(dimPoints[2].x + outShift, (dimPoints[1].y + dimPoints[2].y) / 2);
                     ctx.rotate(Math.PI / 2);
                     ctx.fillText(`h=${win.right}`, 0, 0);
                     ctx.restore();
-
-                    if (win.customText && win.customText.trim() !== '') {
-                        ctx.save();
-                        ctx.font = 'bold 14px Arial'; 
-                        ctx.fillStyle = '#000000';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'top';
-
-                        const textX = x + bottomWidth / 2;
-                        const bottomOuterY = Math.max(outerPoints[2].y, outerPoints[3].y);
-                        const textY = bottomOuterY + 15;
-
-                        ctx.fillText(win.customText, textX, textY);
-                        ctx.restore();
-                    }
+                    // --- КОНЕЦ ИЗМЕНЕНИЯ ---
                     
                     ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 0.3;
+                    ctx.lineWidth = 1;
                     
                     if (win.zipper === '1') {
                         const topMidX = (innerPoints[0].x + innerPoints[1].x) / 2;
@@ -482,24 +429,99 @@
                         const rightInnerTop = innerPoints[1];
                         
                         if (isRect) {
-                            drawWavyLine(ctx, leftInnerTop.x + zipperInnerOffset, leftInnerTop.y, leftInnerTop.x + zipperInnerOffset, outerPoints[3].y);
-                            drawWavyLine(ctx, rightInnerTop.x - zipperInnerOffset, rightInnerTop.y, rightInnerTop.x - zipperInnerOffset, outerPoints[2].y);
+                            drawWavyLine(ctx, leftInnerTop.x + zipperInnerOffset, leftInnerTop.y, 
+                                       leftInnerTop.x + zipperInnerOffset, outerPoints[3].y);
+                            drawWavyLine(ctx, rightInnerTop.x - zipperInnerOffset, rightInnerTop.y, 
+                                       rightInnerTop.x - zipperInnerOffset, outerPoints[2].y);
                         } else {
                             drawWavyLine(ctx, leftInnerTop.x, leftInnerTop.y, leftInnerTop.x, outerPoints[3].y);
                             drawWavyLine(ctx, rightInnerTop.x, rightInnerTop.y, rightInnerTop.x, outerPoints[2].y);
                         }
                     }
+
+                    // Вывод текста под фигурой с переносом строк
+                    if (win.text && win.text.trim() !== '') {
+                        ctx.font = '12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'top';
+                        
+                        const maxTextWidth = bottomWidth + 40; // Ограничиваем ширину текста шириной фигуры + небольшой запас
+                        const words = win.text.split(' ');
+                        let lines = [];
+                        let currentLine = words[0] || '';
+                        
+                        for (let j = 1; j < words.length; j++) {
+                            let testLine = currentLine + ' ' + words[j];
+                            let metrics = ctx.measureText(testLine);
+                            if (metrics.width > maxTextWidth) {
+                                lines.push(currentLine);
+                                currentLine = words[j];
+                            } else {
+                                currentLine = testLine;
+                            }
+                        }
+                        lines.push(currentLine);
+                        
+                        const maxY = Math.max(...innerPoints.map(p => p.y), ...outerPoints.map(p => p.y));
+                        const lineHeight = 14;
+                        for (let j = 0; j < lines.length; j++) {
+                            ctx.fillText(lines[j], centerX, maxY + 25 + j * lineHeight);
+                        }
+                    }
                     
                     x += bottomWidth + padding;
-                    
-                    const bottomOuterYForRow = Math.max(outerPoints[2].y, outerPoints[3].y);
-                    const totalFigureHeight = (bottomOuterYForRow - y) + 35;
-                    rowHeight = Math.max(rowHeight, totalFigureHeight);
-                    
+                    rowHeight = Math.max(rowHeight, windowHeight + 60);
                     figuresDrawn.push(i);
                 }
                 
+                if (footerText.trim() !== '') {
+                    ctx.font = `${footerFontSize}px Arial`;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    ctx.fillStyle = '#000';
+                    
+                    const maxTextWidth = 400;
+                    const lineHeight = footerFontSize * 1.2;
+                    
+                    const words = footerText.split(' ');
+                    let lines = [];
+                    let currentLine = words[0] || '';
+                    
+                    for (let i = 1; i < words.length; i++) {
+                        let testLine = currentLine + ' ' + words[i];
+                        let metrics = ctx.measureText(testLine);
+                        if (metrics.width > maxTextWidth) {
+                            lines.push(currentLine);
+                            currentLine = words[i];
+                        } else {
+                            currentLine = testLine;
+                        }
+                    }
+                    lines.push(currentLine);
+                    
+                    const boxPadding = 10;
+                    let boxHeight = lines.length * lineHeight + boxPadding * 2;
+                    let boxWidth = 0;
+                    lines.forEach(line => {
+                        let w = ctx.measureText(line).width;
+                        if (w > boxWidth) boxWidth = w;
+                    });
+                    boxWidth += boxPadding * 2;
+                    
+                    const boxX = canvasWidth - sheetPadding - boxWidth;
+                    const boxY = canvasHeight - sheetPadding - boxHeight;
+                    
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        ctx.fillText(lines[i], boxX + boxPadding, boxY + boxPadding + i * lineHeight);
+                    }
+                }
+
                 container.appendChild(canvas);
+                sheets.push(canvas);
                 
                 for (let i = figuresDrawn.length - 1; i >= 0; i--) {
                     figuresToDraw.splice(figuresDrawn[i], 1);
@@ -511,6 +533,12 @@
 
         function downloadDrawing() {
             const canvases = document.querySelectorAll('#canvasContainer canvas');
+            
+            if (canvases.length === 0) {
+                alert('Нет чертежей для скачивания');
+                return;
+            }
+            
             if (canvases.length === 1) {
                 html2canvas(canvases[0]).then(canvas => {
                     const link = document.createElement('a');
@@ -519,12 +547,21 @@
                     link.click();
                 });
             } else {
+                // Скачиваем все листы по очереди
+                let downloadedCount = 0;
+                const totalCanvases = canvases.length;
+                
                 canvases.forEach((canvas, index) => {
-                    html2canvas(canvas).then(c => {
+                    html2canvas(canvas).then(resultCanvas => {
                         const link = document.createElement('a');
                         link.download = `windows-drawing-sheet${index + 1}.png`;
-                        link.href = c.toDataURL();
+                        link.href = resultCanvas.toDataURL();
                         link.click();
+                        
+                        downloadedCount++;
+                        if (downloadedCount === totalCanvases) {
+                            console.log('Все листы скачаны');
+                        }
                     });
                 });
             }
