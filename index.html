@@ -329,11 +329,14 @@
                         break;
                     }
                     
+                    const topY = y + windowHeight - Math.max(leftHeight, rightHeight);
+                    const bottomY = y + windowHeight;
+
                     const innerPoints = [
-                        { x: x + (bottomWidth - topWidth) / 2, y: y + (windowHeight - leftHeight) },
-                        { x: x + (bottomWidth + topWidth) / 2, y: y + (windowHeight - rightHeight) },
-                        { x: x + bottomWidth, y: y + windowHeight },
-                        { x: x, y: y + windowHeight }
+                    { x: x + (bottomWidth - topWidth) / 2, y: topY },
+                    { x: x + (bottomWidth + topWidth) / 2, y: topY },
+                    { x: x + bottomWidth, y: bottomY },
+                    { x: x, y: bottomY }
                     ];
                     
                     const uniqueInnerPoints = [];
